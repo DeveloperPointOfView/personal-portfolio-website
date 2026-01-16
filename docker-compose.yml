@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    depends_on:
+      - web
+    entrypoint: ["sh", "-c"]
+    command: ["exec ngrok http --log=stdout ${NGROK_DOMAIN:+--hostname=${NGROK_DOMAIN}} web:80"]
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+      NGROK_DOMAIN: ${NGROK_DOMAIN:-}
+    ports:
+      - "4040:4040"
+    restart: unless-stopped
